@@ -9,17 +9,17 @@ import (
 )
 
 const (
-	HOST          = "localhost"
-	PORT          = 49154
-	USER_NAME     = "root"
-	PASSWORD      = "root"
-	DATABASE_NAME = "go_auth"
+	host          = "localhost"
+	port          = 49154
+	user_name     = "root"
+	password      = "root"
+	database_name = "go_auth"
 )
 
 func Connect() {
 
 	// Database connection string
-	connectionString := fmt.Sprintf("%s:%s@(%s:%d)/%s?parseTime=true", USER_NAME, PASSWORD, HOST, PORT, DATABASE_NAME)
+	connectionString := fmt.Sprintf("%s:%s@(%s:%d)/%s?parseTime=true", user_name, password, host, port, database_name)
 
 	// Connect to the database container
 	_, err := gorm.Open(mysql.Open(connectionString))
