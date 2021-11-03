@@ -21,9 +21,10 @@ const secret = "strongsecretmessage"
 // POST
 func Register(c *fiber.Ctx) error {
 	var data map[string]string
-	if err := c.BodyParser(&data); err != nil {
-		return err
-	}
+
+	// Parse the request
+	parseData(c, &data)
+	fmt.Printf("%+v\n", data)
 
 	password, err := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 	if err != nil {
@@ -46,14 +47,14 @@ func Register(c *fiber.Ctx) error {
 // POST
 func Login(c *fiber.Ctx) error {
 	var data map[string]string
-	if err := c.BodyParser(&data); err != nil {
-		return err
-	}
+
+	// Parse the request
+	parseData(c, &data)
 
 	var user models.User
 
 	// Load the user with the given email matching from the database
-	database.DB.Where("email = ?", data["email"]).First(&user)
+	getFirst("email = ?", data["email"], &user)
 
 	// look for the user with the given email in the database if exists
 	if user.ID == 0 {
@@ -112,23 +113,17 @@ func User(c *fiber.Ctx) error {
 	// Get the cookie
 	cookie := c.Cookies("jwt")
 
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secret), nil
-	})
-
-	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"message": "unauthenticated",
-		})
-	}
+	// Validate the user and get the token
+	token, _ := validateToken(c, cookie)
 
 	claims := token.Claims.(*jwt.StandardClaims)
 
 	var user models.User
 
-	database.DB.Where("id = ?", claims.Issuer).First(&user)
+	// load the user with matching user ID
+	getFirst("id = ?", claims.Issuer, &user)
 
+	// return the user information
 	return c.JSON(user)
 }
 
