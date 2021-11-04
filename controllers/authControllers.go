@@ -80,12 +80,12 @@ func Login(c *fiber.Ctx) error {
 
 	// look for the user with the given email in the database if exists
 	if user.ID == 0 {
-		return sendResponse(c, "User with given email does not exist", fiber.StatusNotFound)
+		return sendResponse(c, ErrInvalidEmail.Error(), fiber.StatusNotFound)
 	}
 
 	// check if the given password match with the password in the database
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data["password"])); err != nil {
-		return sendResponse(c, "incorrect password", fiber.StatusBadRequest)
+		return sendResponse(c, ErrInvalidPassword.Error(), fiber.StatusBadRequest)
 	}
 
 	// cookie expiration time
@@ -98,7 +98,7 @@ func Login(c *fiber.Ctx) error {
 
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return sendResponse(c, "Could not login", fiber.StatusInternalServerError)
+		return sendResponse(c, "Error occured, please retry", fiber.StatusInternalServerError)
 	}
 
 	// Create the cookie
@@ -112,7 +112,7 @@ func Login(c *fiber.Ctx) error {
 	// set the cookie
 	c.Cookie(&cookie)
 
-	return sendResponse(c, "success", fiber.StatusOK)
+	return sendResponse(c, "logged in successfully", fiber.StatusOK)
 }
 
 // Function returns the user information
@@ -145,5 +145,5 @@ func Logout(c *fiber.Ctx) error {
 		HTTPOnly: true,
 	}
 	c.Cookie(&cookie)
-	return sendResponse(c, "Logged out successfully")
+	return sendResponse(c, "logged out successfully")
 }

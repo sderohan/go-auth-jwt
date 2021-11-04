@@ -6,6 +6,9 @@ var (
 	ErrInvalidNameFormat     = errors.New("name does not match the constraints")
 	ErrInvalidEmailFormat    = errors.New("email format is not valid")
 	ErrInvalidPasswordFormat = errors.New("password does not match the constraints")
+
+	ErrInvalidEmail    = errors.New("user with given email does not exist")
+	ErrInvalidPassword = errors.New("incorrect password")
 )
 
 type valData func(data *map[string]string) error
