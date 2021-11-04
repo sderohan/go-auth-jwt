@@ -24,7 +24,20 @@ func Register(c *fiber.Ctx) error {
 
 	// Parse the request
 	parseData(c, &data)
-	fmt.Printf("%+v\n", data)
+
+	// Validate the data
+	err := validateData(
+		&data,
+		validateName,
+		validateEmail,
+		validatePassword,
+	)
+
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
 
 	password, err := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 	if err != nil {
@@ -50,6 +63,19 @@ func Login(c *fiber.Ctx) error {
 
 	// Parse the request
 	parseData(c, &data)
+
+	// Validate the data
+	err := validateData(
+		&data,
+		validateEmail,
+		validatePassword,
+	)
+
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
 
 	var user models.User
 
