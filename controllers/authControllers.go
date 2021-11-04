@@ -34,9 +34,7 @@ func Register(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return sendResponse(c, err.Error())
 	}
 
 	password, err := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
@@ -72,9 +70,7 @@ func Login(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return sendResponse(c, err.Error())
 	}
 
 	var user models.User
@@ -84,18 +80,12 @@ func Login(c *fiber.Ctx) error {
 
 	// look for the user with the given email in the database if exists
 	if user.ID == 0 {
-		c.Status(fiber.StatusNotFound)
-		return c.JSON(fiber.Map{
-			"message": "User with given email does not exist",
-		})
+		return sendResponse(c, "User with given email does not exist", fiber.StatusNotFound)
 	}
 
 	// check if the given password match with the password in the database
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data["password"])); err != nil {
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"message": "incorrect password",
-		})
+		return sendResponse(c, "incorrect password", fiber.StatusBadRequest)
 	}
 
 	// cookie expiration time
@@ -108,11 +98,7 @@ func Login(c *fiber.Ctx) error {
 
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
-		fmt.Println(err)
-		c.Status(fiber.StatusInternalServerError)
-		return c.JSON(fiber.Map{
-			"message": "Couldn't login",
-		})
+		return sendResponse(c, "Could not login", fiber.StatusInternalServerError)
 	}
 
 	// Create the cookie
@@ -126,10 +112,7 @@ func Login(c *fiber.Ctx) error {
 	// set the cookie
 	c.Cookie(&cookie)
 
-	c.Status(fiber.StatusOK)
-	return c.JSON(fiber.Map{
-		"message": "success",
-	})
+	return sendResponse(c, "success", fiber.StatusOK)
 }
 
 // Function returns the user information
@@ -162,7 +145,5 @@ func Logout(c *fiber.Ctx) error {
 		HTTPOnly: true,
 	}
 	c.Cookie(&cookie)
-	return c.JSON(fiber.Map{
-		"message": "Logged out successfully",
-	})
+	return sendResponse(c, "Logged out successfully")
 }
