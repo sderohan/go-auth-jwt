@@ -34,3 +34,12 @@ func validateToken(c *fiber.Ctx, cookie string) (*jwt.Token, error) {
 	}
 	return token, nil
 }
+
+func sendResponse(c *fiber.Ctx, msg string, statusCode ...int) error {
+	if len(statusCode) > 0 {
+		c.Status(statusCode[0])
+	}
+	return c.JSON(fiber.Map{
+		"message": msg,
+	})
+}
