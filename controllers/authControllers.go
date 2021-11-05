@@ -13,7 +13,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// secret is used to sign the jwt token, this is dummy secret.
+// informational messages
+var (
+	LOGIN_SUCCESSFULL  = "logged in successfully"
+	LOGOUT_SUCCESSFULL = "logged out successfully"
+	USER_EXIST         = "user account already exists with the same email id!"
+)
+
+// Secret is used to sign the jwt token, this is dummy secret.
 // Change it as per your need
 const secret = "strongsecretmessage"
 
@@ -33,31 +40,35 @@ func Register(c *fiber.Ctx) error {
 		validatePassword,
 	)
 
+	// if data is invalid, return the error
 	if err != nil {
 		return sendResponse(c, err.Error())
 	}
 
-	// Check if user exists in the database with same email id
+	// Check if user exists in the database with given email id
 	var user models.User
 	userExist("email = ?", data["email"], &user)
 	if user.Email == data["email"] {
-		return sendResponse(c, "User account already exists with the same email id!")
+		return sendResponse(c, USER_EXIST)
 	}
 
+	// Hash the password
 	password, err := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 	if err != nil {
 		return err
 	}
 
+	// Create the user object
 	user = models.User{
 		Name:     data["name"],
 		Email:    data["email"],
 		Password: string(password),
 	}
 
-	// Create the user in the database
+	// Insert the user in the database
 	database.DB.Create(&user)
 
+	// Return the newly created user information in the database
 	return c.JSON(user)
 }
 
@@ -76,6 +87,7 @@ func Login(c *fiber.Ctx) error {
 		validatePassword,
 	)
 
+	// If data is in invalid format, send the error message
 	if err != nil {
 		return sendResponse(c, err.Error())
 	}
@@ -90,7 +102,7 @@ func Login(c *fiber.Ctx) error {
 		return sendResponse(c, ErrInvalidEmail.Error(), fiber.StatusNotFound)
 	}
 
-	// check if the given password match with the password in the database
+	// Check if the given password match with the password in the database
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data["password"])); err != nil {
 		return sendResponse(c, ErrInvalidPassword.Error(), fiber.StatusBadRequest)
 	}
@@ -98,11 +110,13 @@ func Login(c *fiber.Ctx) error {
 	// cookie expiration time
 	cookie_expiry := time.Now().Add(time.Hour * 24)
 
+	// Create the jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp": json.Number(strconv.FormatInt(cookie_expiry.Unix(), 10)),
 		"iss": fmt.Sprintf("%d", user.ID),
 	})
 
+	// Sign the newly created token with the secret
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return sendResponse(c, "Error occured, please retry", fiber.StatusInternalServerError)
@@ -119,7 +133,7 @@ func Login(c *fiber.Ctx) error {
 	// set the cookie
 	c.Cookie(&cookie)
 
-	return sendResponse(c, "logged in successfully", fiber.StatusOK)
+	return sendResponse(c, LOGIN_SUCCESSFULL, fiber.StatusOK)
 }
 
 // Function returns the user information
@@ -148,6 +162,7 @@ func User(c *fiber.Ctx) error {
 
 // Logout clear the user
 func Logout(c *fiber.Ctx) error {
+	// Set the new cookie, altering the time
 	cookie := fiber.Cookie{
 		Name:     "jwt",
 		Value:    "",
@@ -155,5 +170,5 @@ func Logout(c *fiber.Ctx) error {
 		HTTPOnly: true,
 	}
 	c.Cookie(&cookie)
-	return sendResponse(c, "logged out successfully")
+	return sendResponse(c, LOGOUT_SUCCESSFULL)
 }
