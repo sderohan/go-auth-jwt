@@ -37,12 +37,19 @@ func Register(c *fiber.Ctx) error {
 		return sendResponse(c, err.Error())
 	}
 
+	// Check if user exists in the database with same email id
+	var user models.User
+	userExist("email = ?", data["email"], &user)
+	if user.Email == data["email"] {
+		return sendResponse(c, "User account already exists with the same email id!")
+	}
+
 	password, err := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 	if err != nil {
 		return err
 	}
 
-	user := models.User{
+	user = models.User{
 		Name:     data["name"],
 		Email:    data["email"],
 		Password: string(password),
@@ -123,7 +130,10 @@ func User(c *fiber.Ctx) error {
 	cookie := c.Cookies("jwt")
 
 	// Validate the user and get the token
-	token, _ := validateToken(c, cookie)
+	token, err := validateToken(c, cookie)
+	if err != nil {
+		return sendResponse(c, err.Error(), fiber.StatusUnauthorized)
+	}
 
 	claims := token.Claims.(*jwt.StandardClaims)
 

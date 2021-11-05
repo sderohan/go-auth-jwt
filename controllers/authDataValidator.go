@@ -9,6 +9,7 @@ var (
 
 	ErrInvalidEmail    = errors.New("user with given email does not exist")
 	ErrInvalidPassword = errors.New("incorrect password")
+	ErrUnauthenticated = errors.New("unauthenticated")
 )
 
 type valData func(data *map[string]string) error

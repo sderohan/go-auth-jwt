@@ -20,6 +20,11 @@ func getFirst(query string, data interface{}, user *models.User) {
 	database.DB.Where(query, data).First(user)
 }
 
+// Check the uer exist in the database with the given email id
+func userExist(query string, data interface{}, user *models.User) {
+	database.DB.Where(query, data).Find(user)
+}
+
 // Checks if the current user token is valid and returns it if valid
 func validateToken(c *fiber.Ctx, cookie string) (*jwt.Token, error) {
 	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -27,10 +32,7 @@ func validateToken(c *fiber.Ctx, cookie string) (*jwt.Token, error) {
 	})
 
 	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-		return nil, c.JSON(fiber.Map{
-			"message": "unauthenticated",
-		})
+		return nil, ErrUnauthenticated
 	}
 	return token, nil
 }
