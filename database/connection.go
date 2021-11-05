@@ -17,6 +17,7 @@ const (
 	database_name = "go_auth"
 )
 
+// Shared across package to perform the database operations
 var DB *gorm.DB
 
 func Connect() {
@@ -27,7 +28,7 @@ func Connect() {
 	// Connect to the database container
 	connection, err := gorm.Open(mysql.Open(connectionString))
 
-	// alternatively err variable can be declared first but I preffered this
+	// Alternatively err variable can be declared first but I preffered this
 	DB = connection
 	if err != nil {
 		log.Fatal("Could not create the database connection ", err.Error())

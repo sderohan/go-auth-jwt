@@ -7,13 +7,15 @@ import (
 )
 
 var (
-	ErrInvalidNameFormat     = errors.New("name does not match the constraints")
-	ErrInvalidEmailFormat    = errors.New("email format is not valid")
-	ErrInvalidPasswordFormat = errors.New("password does not match the constraints")
+	ErrInvalidNameFormat     = errors.New("name does not match the specified constraints")
+	ErrInvalidEmailFormat    = errors.New("email format is invalid")
+	ErrInvalidPasswordFormat = errors.New("password does not match specified the constraints")
 
 	ErrInvalidEmail    = errors.New("user with given email does not exist")
 	ErrInvalidPassword = errors.New("incorrect password")
 	ErrUnauthenticated = errors.New("unauthenticated")
+
+	ErrInternal = errors.New("error occured, please retry")
 )
 
 type valData func(data *map[string]string) error

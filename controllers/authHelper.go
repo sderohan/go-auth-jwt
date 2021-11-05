@@ -37,6 +37,7 @@ func validateToken(c *fiber.Ctx, cookie string) (*jwt.Token, error) {
 	return token, nil
 }
 
+// Sends the response to the user with given data
 func sendResponse(c *fiber.Ctx, msg string, statusCode ...int) error {
 	if len(statusCode) > 0 {
 		c.Status(statusCode[0])
