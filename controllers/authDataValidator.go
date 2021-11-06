@@ -29,11 +29,25 @@ func validateData(data *map[string]string, fns ...valData) error {
 	return nil
 }
 
+/*
+ Below function validates the username from the request body
+ only uppercase and lowercase letters are allowed
+ and length of the name should be greater than 4 (could be less or more depending on the usecase)
+*/
 func validateName(data *map[string]string) error {
 	if !isExist("name", data) {
 		return ErrInvalidNameFormat
 	}
-	// Need to add the name validation
+	name := (*data)["name"]
+	name_len := len(name)
+	if name_len < 5 {
+		return ErrInvalidNameFormat
+	}
+	for _, char := range name {
+		if !unicode.IsLetter(char) {
+			return ErrInvalidNameFormat
+		}
+	}
 	return nil
 }
 
