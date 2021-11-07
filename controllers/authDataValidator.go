@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"net/mail"
 	"strings"
 	"unicode"
 )
@@ -51,11 +52,20 @@ func validateName(data *map[string]string) error {
 	return nil
 }
 
+/*
+	This function validates the email id.
+	It uses the standard mail library of golang
+*/
 func validateEmail(data *map[string]string) error {
 	if !isExist("email", data) {
 		return ErrInvalidEmailFormat
 	}
-	// Add below the email validation code
+	// string
+	str := (*data)["email"]
+
+	if _, err := mail.ParseAddress(str); err != nil {
+		return ErrInvalidEmailFormat
+	}
 	return nil
 }
 
