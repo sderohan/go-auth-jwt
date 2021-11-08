@@ -11,7 +11,7 @@ import (
 
 const (
 	host          = "localhost"
-	port          = 49154
+	port          = 3306
 	user_name     = "root"
 	password      = "root"
 	database_name = "go_auth"
