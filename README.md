@@ -53,7 +53,7 @@
 2. `email`
    * Entered email id should follow the normal valid email id format
 3. `password`
-   * length should be greater than or equal to 8.
+   * length should be `greater than or equal to 8`
    * one uppercase letter
    * one lowercase letter
    * one digit
