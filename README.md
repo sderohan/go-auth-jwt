@@ -1,5 +1,6 @@
 # go-auth-jwt
-## This repo contains the simple rest api for user creation, authentication such as login and logout using the JWT implemented in GO.
+## Here I have implemented the simple user login and logout system using JWT in golang.
+## API endpoint information available below
 
 ### TECH STACK
 - GO
