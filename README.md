@@ -14,6 +14,8 @@
 - Make sure mysql database is running on the machine.
 - Set the database connection information in `database/connection.go` file.
 - Create the matching database name inside local database specified in `database/connection.go` file.
+- Make sure the go env variable GO111MODULE is set to on or auto if not than run this command `go env -w GO111MODULE=auto`
+- Download all the dependencies running `go mod download`
 - Run the project by using the command `go run main.go`
 - Alternate way to run using the `go build -o executable_file_name` and then run the `./executable_file_name`
 
